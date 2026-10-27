@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TradeZella Lite - 微型期貨交易日誌</title>
+  <title>Raylin's Trading Journal</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,9 +16,6 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  
-  <!-- TradingView Lightweight Charts -->
-  <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
 
   <style>
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -33,13 +30,13 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20 text-emerald-400">
-          <i data-lucide="line-chart" class="w-6 h-6"></i>
+          <i data-lucide="image" class="w-6 h-6"></i>
         </div>
         <div>
           <h1 class="font-bold text-lg text-white flex items-center gap-2">
-            TradeZella <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Futures Edition</span>
+            TradeZella <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Screenshot Edition</span>
           </h1>
-          <p class="text-xs text-slate-400">MES / MNQ 專用美盤 5 分 K 線交易檢討日誌</p>
+          <p class="text-xs text-slate-400">MES / MNQ 截圖覆盤與損益統計日誌</p>
         </div>
       </div>
 
@@ -51,9 +48,6 @@
           <i data-lucide="upload" class="w-3.5 h-3.5"></i> 匯入 JSON
           <input type="file" id="importFileInput" onchange="importData(event)" class="hidden" accept=".json">
         </label>
-        <button onclick="resetDemoData()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg border border-rose-500/20 transition">
-          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> 重置數據
-        </button>
       </div>
     </div>
   </header>
@@ -81,19 +75,23 @@
       </div>
     </div>
 
-    <!-- Chart Visualizer -->
+    <!-- 交易圖檔展示區 (Image Display Area) -->
     <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+      <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <i data-lucide="candlestick-chart" class="w-5 h-5 text-emerald-400"></i>
-          <h2 class="font-semibold text-slate-200">美盤 81 根 5分 K 線買賣點標記區</h2>
+          <i data-lucide="eye" class="w-5 h-5 text-emerald-400"></i>
+          <h2 class="font-semibold text-slate-200">交易圖片覆盤與檢討視窗</h2>
         </div>
         <div id="activeTradeInfo" class="text-xs text-slate-400 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 font-mono">
-          載入中...
+          未選擇交易
         </div>
       </div>
-      <div class="p-4">
-        <div id="chartContainer" class="w-full h-[400px] bg-slate-950 rounded-lg border border-slate-800/80"></div>
+      <div class="p-4 flex flex-col items-center justify-center min-h-[350px] bg-slate-950 relative">
+        <img id="tradeImagePreview" src="" alt="交易圖片" class="max-h-[500px] w-auto object-contain rounded-lg border border-slate-800 hidden">
+        <div id="noImagePlaceholder" class="text-center text-slate-500 p-8 space-y-2">
+          <i data-lucide="image-off" class="w-12 h-12 mx-auto stroke-1"></i>
+          <p class="text-sm">請從下方點擊任一筆交易，或新增帶有圖檔的交易紀錄</p>
+        </div>
       </div>
     </div>
 
@@ -101,24 +99,24 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Left: Form -->
-      <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+      <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
         <h2 class="font-semibold border-b border-slate-800 pb-3 flex items-center gap-2">
           <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i> 新增微型期貨交易
         </h2>
         <form id="tradeForm" onsubmit="handleFormSubmit(event)" class="space-y-3">
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="text-xs text-slate-400">標的合約</label>
+              <label class="text-xs text-slate-400"></label>
               <select id="symbol" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm text-emerald-400 font-bold">
-                <option value="MES">MES (微型 S&P $5/點)</option>
-                <option value="MNQ">MNQ (微型納指 $2/點)</option>
+                <option value="MES">MES</option>
+                <option value="MNQ">MNQ</option>
               </select>
             </div>
             <div>
               <label class="text-xs text-slate-400">多空方向</label>
               <select id="side" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
-                <option value="LONG">做多 (LONG)</option>
-                <option value="SHORT">做空 (SHORT)</option>
+                <option value="LONG">LONG</option>
+                <option value="SHORT">SHORT</option>
               </select>
             </div>
           </div>
@@ -129,13 +127,13 @@
               <input type="date" id="date" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
             </div>
             <div>
-              <label class="text-xs text-slate-400">口數 (Contracts)</label>
-              <input type="number" id="qty" placeholder="1" min="1" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
+              <label class="text-xs text-slate-400">Contracts</label>
+              <input type="number" id="qty" placeholder="1" min="1" value="1" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
             </div>
           </div>
 
           <!-- K 線進出場棒數 (1-81) -->
-          <div class="grid grid-cols-2 gap-2 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+          <div class="grid grid-cols-2 gap-2 bg-slate-950/60 p-2 rounded-lg border border-slate-800">
             <div>
               <label class="text-xs text-sky-400 font-medium">進場 K 棒 (1-81)</label>
               <input type="number" id="entryBar" min="1" max="81" placeholder="例如: 5" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm font-mono">
@@ -148,41 +146,49 @@
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="text-xs text-slate-400">進場價格 (Entry)</label>
+              <label class="text-xs text-slate-400">Entry</label>
               <input type="number" step="any" id="entryPrice" placeholder="例如 5800.25" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm font-mono">
             </div>
             <div>
-              <label class="text-xs text-slate-400">出場價格 (Exit)</label>
+              <label class="text-xs text-slate-400">Exit</label>
               <input type="number" step="any" id="exitPrice" placeholder="例如 5815.50" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm font-mono">
             </div>
+          </div>
+
+          <!-- 圖片上傳區塊 -->
+          <div>
+            <label class="text-xs text-slate-400">上傳交易截圖</label>
+            <input type="file" id="imageInput" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer border border-slate-800 rounded-lg p-1 bg-slate-950 mt-1">
           </div>
 
           <div>
             <label class="text-xs text-slate-400">策略/心理標籤</label>
             <select id="tag" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
-              <option value="Breakout">突破策略 (Breakout)</option>
-              <option value="Pullback">回檔拉回 (Pullback)</option>
-              <option value="Reversal">趨勢反轉 (Reversal)</option>
+              <option value="Breakout">Breakout</option>
+              <option value="Pullback">Pullback</option>
+              <option value="Reversal">Reversal</option>
+              <option value="Revenge">Trading Range fade</option>
+              <option value="Revenge">Trend</option>
               <option value="FOMO">情緒追價 (FOMO)</option>
-              <option value="Revenge">報復下單 (Revenge)</option>
+              <option value="Revenge">報復下單 (Revenge)</optio>
             </select>
           </div>
 
           <div>
             <label class="text-xs text-slate-400">檢討筆記</label>
-            <textarea id="notes" rows="2" placeholder="進出場邏輯檢討..." class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm"></textarea>
+            <textarea id="notes" rows="2" placeholder="" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm"></textarea>
           </div>
 
-          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded text-sm font-medium transition">
-            儲存交易紀錄
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded text-sm font-medium transition flex items-center justify-center gap-2">
+            <i data-lucide="save" class="w-4 h-4"></i> 儲存交易與圖片
           </button>
         </form>
       </div>
 
       <!-- Right: Log -->
-      <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+      <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
         <h2 class="font-semibold border-b border-slate-800 pb-3 flex items-center gap-2">
-          <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i> 期貨交易檢討明細
+          <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i> 期貨交易檢討
         </h2>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
@@ -192,8 +198,8 @@
                 <th class="py-2">標的</th>
                 <th class="py-2">方向</th>
                 <th class="py-2">K 棒範圍</th>
-                <th class="py-2">進/出場點位</th>
                 <th class="py-2">總損益 (PnL)</th>
+                <th class="py-2">圖檔</th>
                 <th class="py-2 text-right">操作</th>
               </tr>
             </thead>
@@ -206,136 +212,41 @@
   </main>
 
   <script>
-    // 預設乘數：MES 點數*5，MNQ 點數*2
     const MULTIPLIERS = { MES: 5, MNQ: 2 };
 
-    const DEMO_TRADES = [
-      { id: "t1", symbol: "MES", side: "LONG", date: "2026-10-20", qty: 2, entryBar: 6, exitBar: 18, entryPrice: 5800.00, exitPrice: 5812.50, tag: "Breakout", notes: "開盤突破前高第 6 根進場，第 18 根獲利出場" },
-      { id: "t2", symbol: "MNQ", side: "SHORT", date: "2026-10-22", qty: 1, entryBar: 3, exitBar: 7, entryPrice: 20400.00, exitPrice: 20450.00, tag: "FOMO", notes: "第 3 根急跌追空停損" }
-    ];
-
     let trades = [];
-    let chart = null;
-    let candlestickSeries = null;
     let selectedTradeId = null;
 
     window.onload = function() {
       lucide.createIcons();
       document.getElementById('date').value = new Date().toISOString().split('T')[0];
-      
-      setTimeout(() => {
-        initChart();
-        loadTrades();
-      }, 200);
+      loadTrades();
     };
 
-    function initChart() {
-      const container = document.getElementById('chartContainer');
-      if (!container || typeof LightweightCharts === 'undefined') return;
-      container.innerHTML = '';
-
-      chart = LightweightCharts.createChart(container, {
-        width: container.clientWidth,
-        height: 400,
-        layout: { background: { type: 'solid', color: '#020617' }, textColor: '#94a3b8' },
-        grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
-        timeScale: { borderColor: '#334155', timeVisible: true }
-      });
-
-      candlestickSeries = chart.addCandlestickSeries({
-        upColor: '#10b981', downColor: '#f43f5e',
-        borderVisible: false, wickUpColor: '#10b981', wickDownColor: '#f43f5e'
-      });
-    }
-
-    // 計算合約損益函數 (點數差 * 口數 * 點值乘數 * 多空)
     function calculatePnL(trade) {
       const mult = MULTIPLIERS[trade.symbol] || 1;
       const dir = trade.side === 'LONG' ? 1 : -1;
       return (trade.exitPrice - trade.entryPrice) * trade.qty * mult * dir;
     }
 
-    // 根據美盤 81 根 5 分 K 棒繪製 K 線圖與標記
-    function updateChartForTrade(trade) {
-      if (!chart || !candlestickSeries) return;
-
-      const pnl = calculatePnL(trade);
-      document.getElementById('activeTradeInfo').innerHTML = 
-        `<b class="text-emerald-400">${trade.symbol} (${trade.qty}口)</b> | ${trade.side} @ $${trade.entryPrice} (第${trade.entryBar}根) → $${trade.exitPrice} (第${trade.exitBar}根) | <span class="${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span>`;
-
-      // 生成美盤 81 根 5 分 K 線
-      const candles = generateUSSession5MinKLines(trade);
-      candlestickSeries.setData(candles);
-
-      const entryBarIdx = Math.min(Math.max(trade.entryBar - 1, 0), 80);
-      const exitBarIdx = Math.min(Math.max(trade.exitBar - 1, 0), 80);
-
-      candlestickSeries.setMarkers([
-        { 
-          time: candles[entryBarIdx].time, 
-          position: trade.side === 'LONG' ? 'belowBar' : 'aboveBar', 
-          color: trade.side === 'LONG' ? '#10b981' : '#f43f5e', 
-          shape: trade.side === 'LONG' ? 'arrowUp' : 'arrowDown', 
-          text: `進場 (Bar ${trade.entryBar}): $${trade.entryPrice}` 
-        },
-        { 
-          time: candles[exitBarIdx].time, 
-          position: trade.side === 'LONG' ? 'aboveBar' : 'belowBar', 
-          color: '#38bdf8', 
-          shape: 'circle', 
-          text: `出場 (Bar ${trade.exitBar}): $${trade.exitPrice}` 
-        }
-      ]);
-
-      chart.timeScale().fitContent();
-    }
-
-    // 產生美盤 81 根 5 分 K 線模擬數據 (09:30 - 16:15)
-    function generateUSSession5MinKLines(trade) {
-      const result = [];
-      const [year, month, day] = trade.date.split('-').map(Number);
-      
-      // 美盤開盤時間 09:30
-      let currentTimestamp = new Date(Date.UTC(year, month - 1, day, 13, 30, 0)).getTime() / 1000;
-      let price = trade.entryPrice;
-
-      for (let bar = 1; bar <= 81; bar++) {
-        let open = price;
-        let change = (Math.random() - 0.49) * (open * 0.0015);
-
-        // 強制校正第 N 根 K 線的點位
-        if (bar === trade.entryBar) open = trade.entryPrice;
-        if (bar === trade.exitBar) change = trade.exitPrice - open;
-
-        const close = open + change;
-        const high = Math.max(open, close) + Math.abs(change) * 0.5;
-        const low = Math.min(open, close) - Math.abs(change) * 0.5;
-
-        result.push({
-          time: currentTimestamp,
-          open: parseFloat(open.toFixed(2)),
-          high: parseFloat(high.toFixed(2)),
-          low: parseFloat(low.toFixed(2)),
-          close: parseFloat(close.toFixed(2))
-        });
-
-        price = close;
-        currentTimestamp += 300; // 每根 5 分鐘 (300 秒)
-      }
-
-      return result;
-    }
-
     function loadTrades() {
-      const saved = localStorage.getItem('tradezella_futures_trades');
-      trades = saved ? JSON.parse(saved) : DEMO_TRADES;
+      const saved = localStorage.getItem('tradezella_screenshot_trades');
+      trades = saved ? JSON.parse(saved) : [];
       calculateStats();
       renderTable();
-      if (trades.length > 0) selectTrade(trades[0].id);
+      if (trades.length > 0) {
+        selectTrade(trades[0].id);
+      } else {
+        showNoImage();
+      }
     }
 
     function saveTrades() {
-      localStorage.setItem('tradezella_futures_trades', JSON.stringify(trades));
+      try {
+        localStorage.setItem('tradezella_screenshot_trades', JSON.stringify(trades));
+      } catch (e) {
+        alert("圖片檔案較大，已超出瀏覽器 LocalStorage 限制。建議將圖片壓縮後再上傳！");
+      }
       calculateStats();
       renderTable();
     }
@@ -384,9 +295,9 @@
           <td class="py-2.5 px-2 text-slate-400">${t.date}</td>
           <td class="font-bold ${t.symbol === 'MES' ? 'text-emerald-400' : 'text-amber-400'}">${t.symbol} (${t.qty}口)</td>
           <td><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${t.side === 'LONG' ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'}">${t.side}</span></td>
-          <td class="text-slate-300 font-mono">Bar ${t.entryBar} → Bar ${t.exitBar}</td>
-          <td class="text-slate-300 font-mono">$${t.entryPrice} → $${t.exitPrice}</td>
+          <td class="text-slate-300 font-mono">Bar ${t.entryBar} → ${t.exitBar}</td>
           <td class="font-bold font-mono ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</td>
+          <td>${t.image ? '<span class="text-emerald-400 text-xs">有圖檔</span>' : '<span class="text-slate-600 text-xs">無圖</span>'}</td>
           <td class="text-right"><button onclick="event.stopPropagation(); deleteTrade('${t.id}')" class="text-rose-500 hover:text-rose-400">刪除</button></td>
         `;
         tbody.appendChild(tr);
@@ -396,12 +307,41 @@
     function selectTrade(id) {
       selectedTradeId = id;
       const t = trades.find(item => item.id === id);
-      if (t) updateChartForTrade(t);
+      if (t) {
+        const pnl = calculatePnL(t);
+        document.getElementById('activeTradeInfo').innerHTML = 
+          `<b class="text-emerald-400">${t.symbol} (${t.qty}口)</b> | ${t.side} Bar ${t.entryBar} ($${t.entryPrice}) → Bar ${t.exitBar} ($${t.exitPrice}) | PnL: <b class="${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</b>`;
+
+        const imgElem = document.getElementById('tradeImagePreview');
+        const placeholder = document.getElementById('noImagePlaceholder');
+
+        if (t.image) {
+          imgElem.src = t.image;
+          imgElem.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+        } else {
+          showNoImage();
+        }
+      }
       renderTable();
     }
 
-    function handleFormSubmit(e) {
+    function showNoImage() {
+      document.getElementById('tradeImagePreview').classList.add('hidden');
+      document.getElementById('noImagePlaceholder').classList.remove('hidden');
+      document.getElementById('activeTradeInfo').innerText = "未選擇或該筆無圖檔";
+    }
+
+    async function handleFormSubmit(e) {
       e.preventDefault();
+      
+      const fileInput = document.getElementById('imageInput');
+      let imageBase64 = null;
+
+      if (fileInput.files && fileInput.files[0]) {
+        imageBase64 = await convertFileToBase64(fileInput.files[0]);
+      }
+
       const newT = {
         id: "t" + Date.now(),
         symbol: document.getElementById('symbol').value,
@@ -412,31 +352,54 @@
         exitBar: parseInt(document.getElementById('exitBar').value),
         entryPrice: parseFloat(document.getElementById('entryPrice').value),
         exitPrice: parseFloat(document.getElementById('exitPrice').value),
+        image: imageBase64,
         tag: document.getElementById('tag').value,
         notes: document.getElementById('notes').value
       };
+
       trades.unshift(newT);
       saveTrades();
       selectTrade(newT.id);
+
+      // Reset form fields
+      document.getElementById('entryPrice').value = '';
+      document.getElementById('exitPrice').value = '';
+      document.getElementById('entryBar').value = '';
+      document.getElementById('exitBar').value = '';
+      document.getElementById('notes').value = '';
+      document.getElementById('imageInput').value = '';
+    }
+
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
     }
 
     function deleteTrade(id) {
       trades = trades.filter(t => t.id !== id);
       saveTrades();
-      if (trades.length > 0) selectTrade(trades[0].id);
+      if (trades.length > 0) {
+        selectTrade(trades[0].id);
+      } else {
+        showNoImage();
+      }
     }
 
     function resetDemoData() {
-      trades = DEMO_TRADES;
+      trades = [];
       saveTrades();
-      if (trades.length > 0) selectTrade(trades[0].id);
+      showNoImage();
     }
 
     function exportData() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trades, null, 2));
       const a = document.createElement('a');
       a.href = dataStr;
-      a.download = `futures_trades_backup.json`;
+      a.download = `futures_screenshot_trades_backup.json`;
       a.click();
     }
 
