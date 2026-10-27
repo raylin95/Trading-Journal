@@ -3,51 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TradeZella Lite - 交易日誌軟體</title>
+  <title>TradeZella Lite - 交易日誌</title>
   
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              500: '#10b981',
-              600: '#059669',
-            }
-          }
-        }
-      }
+      theme: { extend: { colors: { brand: { 500: '#10b981', 600: '#059669' } } } }
     }
   </script>
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   
-  <!-- TradingView Lightweight Charts -->
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <!-- TradingView Lightweight Charts (確保正確載入) -->
+  <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
 
   <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased">
 
   <!-- Header -->
   <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-40">
@@ -57,692 +36,364 @@
           <i data-lucide="line-chart" class="w-6 h-6"></i>
         </div>
         <div>
-          <h1 class="font-bold text-lg tracking-wide text-white flex items-center gap-2">
-            TradeZella <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Lite Edition</span>
+          <h1 class="font-bold text-lg text-white flex items-center gap-2">
+            TradeZella <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Web Edition</span>
           </h1>
-          <p class="text-xs text-slate-400">純前端手動交易紀錄與圖表檢討系統</p>
+          <p class="text-xs text-slate-400">交易紀錄與 TradingView K 線繪製分析</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
-        <button onclick="exportData()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition">
+        <button onclick="exportData()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition">
           <i data-lucide="download" class="w-3.5 h-3.5"></i> 匯出 JSON
         </button>
-        <label class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 cursor-pointer transition">
+        <label class="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 cursor-pointer transition">
           <i data-lucide="upload" class="w-3.5 h-3.5"></i> 匯入 JSON
           <input type="file" id="importFileInput" onchange="importData(event)" class="hidden" accept=".json">
         </label>
-        <button onclick="resetDemoData()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg border border-rose-500/20 transition">
-          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> 重置示範數據
+        <button onclick="resetDemoData()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg border border-rose-500/20 transition">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> 重置數據
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Container -->
+  <!-- Main Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- KPI Dashboard Cards -->
+    <!-- Dashboard Cards -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-        <div class="flex justify-between items-start text-slate-400">
-          <span class="text-xs font-medium">總淨損益 (Net PnL)</span>
-          <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-400"></i>
-        </div>
-        <div class="mt-2">
-          <div id="statNetPnL" class="text-2xl font-bold tracking-tight text-emerald-400">$0.00</div>
-          <div id="statPnLSub" class="text-xs text-slate-500 mt-1">勝利回報總和</div>
-        </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <span class="text-xs text-slate-400">總淨損益 (Net PnL)</span>
+        <div id="statNetPnL" class="text-2xl font-bold mt-1 text-emerald-400">$0.00</div>
       </div>
-
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-        <div class="flex justify-between items-start text-slate-400">
-          <span class="text-xs font-medium">勝率 (Win Rate)</span>
-          <i data-lucide="pie-chart" class="w-4 h-4 text-sky-400"></i>
-        </div>
-        <div class="mt-2">
-          <div id="statWinRate" class="text-2xl font-bold tracking-tight text-sky-400">0%</div>
-          <div id="statWinCount" class="text-xs text-slate-500 mt-1">0 勝 / 0 負</div>
-        </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <span class="text-xs text-slate-400">勝率 (Win Rate)</span>
+        <div id="statWinRate" class="text-2xl font-bold mt-1 text-sky-400">0%</div>
       </div>
-
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-        <div class="flex justify-between items-start text-slate-400">
-          <span class="text-xs font-medium">獲利因子 (Profit Factor)</span>
-          <i data-lucide="trending-up" class="w-4 h-4 text-amber-400"></i>
-        </div>
-        <div class="mt-2">
-          <div id="statProfitFactor" class="text-2xl font-bold tracking-tight text-amber-400">0.00</div>
-          <div id="statPFSub" class="text-xs text-slate-500 mt-1">總獲利 / 總虧損</div>
-        </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <span class="text-xs text-slate-400">獲利因子 (Profit Factor)</span>
+        <div id="statProfitFactor" class="text-2xl font-bold mt-1 text-amber-400">0.00</div>
       </div>
-
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-        <div class="flex justify-between items-start text-slate-400">
-          <span class="text-xs font-medium">平均風報比 (Avg R-Mult)</span>
-          <i data-lucide="target" class="w-4 h-4 text-purple-400"></i>
-        </div>
-        <div class="mt-2">
-          <div id="statAvgR" class="text-2xl font-bold tracking-tight text-purple-400">0.00R</div>
-          <div id="statTotalTrades" class="text-xs text-slate-500 mt-1">共 0 筆交易</div>
-        </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <span class="text-xs text-slate-400">平均風報比 (Avg R-Mult)</span>
+        <div id="statAvgR" class="text-2xl font-bold mt-1 text-purple-400">0.00R</div>
       </div>
     </div>
 
-    <!-- Chart & Interactive Visualizer Section -->
+    <!-- Chart Visualizer -->
     <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="candlestick-chart" class="w-5 h-5 text-emerald-400"></i>
-          <h2 class="font-semibold text-slate-200">K 線重盤與買賣點畫圖檢討 (TradingView Engine)</h2>
+          <h2 class="font-semibold text-slate-200">TradingView K 線進出場標記區</h2>
         </div>
         <div id="activeTradeInfo" class="text-xs text-slate-400 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 font-mono">
-          請從下方選擇一筆交易以繪製買賣點
+          載入中...
         </div>
       </div>
       <div class="p-4">
-        <!-- Chart Canvas container -->
         <div id="chartContainer" class="w-full h-[400px] bg-slate-950 rounded-lg border border-slate-800/80"></div>
       </div>
     </div>
 
-    <!-- Main Grid: Form + Journal Table -->
+    <!-- Form + Table -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- Left Column: Trade Input Form (4 Cols) -->
+      <!-- Left: Form -->
       <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h2 class="font-semibold text-slate-200 flex items-center gap-2">
-            <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i>
-            手動新增交易筆數
-          </h2>
-          <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Manual Entry</span>
-        </div>
-
-        <form id="tradeForm" onsubmit="handleFormSubmit(event)" class="space-y-3.5">
-          <div class="grid grid-cols-2 gap-3">
+        <h2 class="font-semibold border-b border-slate-800 pb-3 flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i> 新增交易筆數
+        </h2>
+        <form id="tradeForm" onsubmit="handleFormSubmit(event)" class="space-y-3">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">交易標的 (Symbol)</label>
-              <input type="text" id="symbol" placeholder="例如: TSLA, NVDA" required 
-                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 uppercase font-mono focus:outline-none focus:border-emerald-500 transition">
+              <label class="text-xs text-slate-400">標的</label>
+              <input type="text" id="symbol" placeholder="TSLA" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm uppercase">
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">方向 (Side)</label>
-              <select id="side" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition">
-                <option value="LONG">做多 (LONG)</option>
-                <option value="SHORT">做空 (SHORT)</option>
+              <label class="text-xs text-slate-400">方向</label>
+              <select id="side" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
+                <option value="LONG">LONG</option>
+                <option value="SHORT">SHORT</option>
               </select>
             </div>
           </div>
-
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">進場日期 (Date)</label>
-              <input type="date" id="date" required 
-                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition">
+              <label class="text-xs text-slate-400">日期</label>
+              <input type="date" id="date" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">股數/口數 (Qty)</label>
-              <input type="number" id="qty" step="any" placeholder="100" required 
-                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition">
+              <label class="text-xs text-slate-400">股數</label>
+              <input type="number" id="qty" placeholder="100" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
             </div>
           </div>
-
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">進場價格 (Entry)</label>
-              <input type="number" id="entryPrice" step="any" placeholder="200.00" required 
-                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 font-mono focus:outline-none focus:border-emerald-500 transition">
+              <label class="text-xs text-slate-400">買價 (Entry)</label>
+              <input type="number" step="any" id="entryPrice" placeholder="200" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">出場價格 (Exit)</label>
-              <input type="number" id="exitPrice" step="any" placeholder="215.00" required 
-                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 font-mono focus:outline-none focus:border-emerald-500 transition">
+              <label class="text-xs text-slate-400">賣價 (Exit)</label>
+              <input type="number" step="any" id="exitPrice" placeholder="215" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
             </div>
           </div>
-
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">預設停損價 (SL)</label>
-              <input type="number" id="stopLoss" step="any" placeholder="195.00" 
-                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 font-mono focus:outline-none focus:border-emerald-500 transition">
+              <label class="text-xs text-slate-400">停損價 (SL)</label>
+              <input type="number" step="any" id="stopLoss" placeholder="195" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">預設目標價 (TP)</label>
-              <input type="number" id="targetPrice" step="any" placeholder="220.00" 
-                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 font-mono focus:outline-none focus:border-emerald-500 transition">
+              <label class="text-xs text-slate-400">目標價 (TP)</label>
+              <input type="number" step="any" id="targetPrice" placeholder="220" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
             </div>
           </div>
-
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">策略與心理標籤 (Tag)</label>
-            <select id="tag" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition">
-              <option value="Breakout">突破策略 (Breakout)</option>
-              <option value="Pullback">回檔拉回 (Pullback)</option>
-              <option value="Reversal">趨勢反轉 (Reversal)</option>
-              <option value="FOMO">情緒衝動追價 (FOMO)</option>
-              <option value="Revenge">報復性下單 (Revenge)</option>
+            <label class="text-xs text-slate-400">標籤</label>
+            <select id="tag" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
+              <option value="Breakout">Breakout</option>
+              <option value="Pullback">Pullback</option>
+              <option value="Reversal">Reversal</option>
+              <option value="FOMO">FOMO</option>
             </select>
           </div>
-
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">交易心得與檢討 (Notes)</label>
-            <textarea id="notes" rows="3" placeholder="撰寫當時的進場理由或心理狀態檢討..." 
-                      class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
+            <label class="text-xs text-slate-400">檢討筆記</label>
+            <textarea id="notes" rows="2" placeholder="進場原因檢討..." class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm"></textarea>
           </div>
-
-          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-lg shadow-lg shadow-emerald-900/20 transition flex items-center justify-center gap-2">
-            <i data-lucide="save" class="w-4 h-4"></i> 儲存交易紀錄
-          </button>
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2 rounded text-sm font-medium">儲存紀錄</button>
         </form>
       </div>
 
-      <!-- Right Column: Journal Table (8 Cols) -->
-      <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 flex flex-col justify-between">
-        <div>
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-            <h2 class="font-semibold text-slate-200 flex items-center gap-2">
-              <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i>
-              歷史交易檢討日誌 (Trade Log)
-            </h2>
-            
-            <div class="flex items-center gap-2">
-              <select id="filterTag" onchange="renderJournalTable()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-300 focus:outline-none">
-                <option value="ALL">所有策略標籤</option>
-                <option value="Breakout">Breakout</option>
-                <option value="Pullback">Pullback</option>
-                <option value="Reversal">Reversal</option>
-                <option value="FOMO">FOMO</option>
-                <option value="Revenge">Revenge</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Table Wrapper -->
-          <div class="overflow-x-auto mt-4">
-            <table class="w-full text-left text-sm">
-              <thead class="text-xs text-slate-400 border-b border-slate-800 bg-slate-950/50">
-                <tr>
-                  <th class="py-2.5 px-3">日期</th>
-                  <th class="py-2.5 px-3">標的</th>
-                  <th class="py-2.5 px-3">方向</th>
-                  <th class="py-2.5 px-3">進/出場價</th>
-                  <th class="py-2.5 px-3">損益 (PnL)</th>
-                  <th class="py-2.5 px-3">R 值</th>
-                  <th class="py-2.5 px-3">標籤</th>
-                  <th class="py-2.5 px-3 text-right">操作</th>
-                </tr>
-              </thead>
-              <tbody id="journalTableBody" class="divide-y divide-slate-800/60 font-mono text-xs">
-                <!-- JS Inject Rows -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-xs text-slate-500">
-          <span>提示：點擊任何一筆交易列表可將該標的載入至下方 K 線圖進行檢討</span>
-          <span id="recordCount">共 0 筆紀錄</span>
+      <!-- Right: Log -->
+      <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+        <h2 class="font-semibold border-b border-slate-800 pb-3 flex items-center gap-2">
+          <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i> 交易歷史明細
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="text-xs text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="py-2">日期</th>
+                <th class="py-2">標的</th>
+                <th class="py-2">方向</th>
+                <th class="py-2">價位</th>
+                <th class="py-2">損益</th>
+                <th class="py-2">標籤</th>
+                <th class="py-2 text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody id="journalTableBody" class="divide-y divide-slate-800/60 font-mono text-xs"></tbody>
+          </table>
         </div>
       </div>
 
     </div>
-
   </main>
 
-  <!-- Application Logic JavaScript -->
   <script>
-    // 預設示範交易資料
     const DEMO_TRADES = [
-      {
-        id: "trade-1",
-        symbol: "TSLA",
-        side: "LONG",
-        date: "2026-10-20",
-        qty: 100,
-        entryPrice: 210.00,
-        exitPrice: 232.50,
-        stopLoss: 202.00,
-        targetPrice: 235.00,
-        tag: "Breakout",
-        notes: "早盤量能突破前高，精確在 210 入場，並在預定目標價前獲利落袋。"
-      },
-      {
-        id: "trade-2",
-        symbol: "NVDA",
-        side: "SHORT",
-        date: "2026-10-22",
-        qty: 50,
-        entryPrice: 142.00,
-        exitPrice: 147.20,
-        stopLoss: 145.00,
-        targetPrice: 132.00,
-        tag: "FOMO",
-        notes: "開盤大漲衝動追空，未嚴格執行停損，導致額外虧損出場。"
-      },
-      {
-        id: "trade-3",
-        symbol: "AAPL",
-        side: "LONG",
-        date: "2026-10-25",
-        qty: 150,
-        entryPrice: 225.00,
-        exitPrice: 234.00,
-        stopLoss: 220.00,
-        targetPrice: 235.00,
-        tag: "Pullback",
-        notes: "月線支撐處支撐確認，拉回買進，獲利順利入袋。"
-      }
+      { id: "t1", symbol: "TSLA", side: "LONG", date: "2026-10-20", qty: 100, entryPrice: 210, exitPrice: 232.5, stopLoss: 202, targetPrice: 235, tag: "Breakout", notes: "量能突破進場" },
+      { id: "t2", symbol: "NVDA", side: "SHORT", date: "2026-10-22", qty: 50, entryPrice: 142, exitPrice: 147.2, stopLoss: 145, targetPrice: 132, tag: "FOMO", notes: "衝動追空" }
     ];
 
     let trades = [];
     let chart = null;
     let candlestickSeries = null;
-    let priceLineSL = null;
-    let priceLineTP = null;
     let selectedTradeId = null;
 
-    // 頁面初始化
-    document.addEventListener("DOMContentLoaded", () => {
+    window.onload = function() {
       lucide.createIcons();
       document.getElementById('date').value = new Date().toISOString().split('T')[0];
       
-      initChart();
-      loadTrades();
+      setTimeout(() => {
+        initChart();
+        loadTrades();
+      }, 200);
+    };
 
-      if (trades.length > 0) {
-        selectTradeForChart(trades[0].id);
-      }
-    });
-
-    // 1. 初始化 TradingView 圖表引擎
     function initChart() {
       const container = document.getElementById('chartContainer');
+      if (!container || typeof LightweightCharts === 'undefined') {
+        console.error('LightweightCharts CDN 未成功載入');
+        return;
+      }
       container.innerHTML = '';
 
       chart = LightweightCharts.createChart(container, {
         width: container.clientWidth,
         height: 400,
-        layout: {
-          background: { type: 'solid', color: '#020617' },
-          textColor: '#94a3b8',
-        },
-        grid: {
-          vertLines: { color: '#1e293b' },
-          horzLines: { color: '#1e293b' },
-        },
-        crosshair: {
-          mode: LightweightCharts.CrosshairMode.Normal,
-        },
-        rightPriceScale: {
-          borderColor: '#334155',
-        },
-        timeScale: {
-          borderColor: '#334155',
-          timeVisible: true,
-        },
+        layout: { background: { type: 'solid', color: '#020617' }, textColor: '#94a3b8' },
+        grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
+        timeScale: { borderColor: '#334155' }
       });
 
       candlestickSeries = chart.addCandlestickSeries({
-        upColor: '#10b981',
-        downColor: '#f43f5e',
-        borderVisible: false,
-        wickUpColor: '#10b981',
-        wickDownColor: '#f43f5e',
-      });
-
-      window.addEventListener('resize', () => {
-        if (chart && container) {
-          chart.applyOptions({ width: container.clientWidth });
-        }
+        upColor: '#10b981', downColor: '#f43f5e',
+        borderVisible: false, wickUpColor: '#10b981', wickDownColor: '#f43f5e'
       });
     }
 
-    // 2. 模擬生成該標的歷史 K 線與買賣 Marker 繪製
     function updateChartForTrade(trade) {
       if (!chart || !candlestickSeries) return;
 
-      document.getElementById('activeTradeInfo').innerHTML = `
-        <span class="text-emerald-400 font-bold">${trade.symbol}</span> | 
-        ${trade.side} @ $${trade.entryPrice} → $${trade.exitPrice} 
-        <span class="text-slate-500">(${trade.date})</span>
-      `;
+      document.getElementById('activeTradeInfo').innerHTML = 
+        `<b class="text-emerald-400">${trade.symbol}</b> | ${trade.side} @ $${trade.entryPrice} → $${trade.exitPrice}`;
 
-      // 產生買賣點前後 30 天的模擬 K 線資料
-      const candles = generateSyntheticKLines(trade);
+      const candles = generateKLines(trade);
       candlestickSeries.setData(candles);
 
-      // 設定買賣標記 (Markers)
-      const markers = [
-        {
-          time: trade.date,
-          position: trade.side === 'LONG' ? 'belowBar' : 'aboveBar',
-          color: trade.side === 'LONG' ? '#10b981' : '#f43f5e',
-          shape: trade.side === 'LONG' ? 'arrowUp' : 'arrowDown',
-          text: `Entry (${trade.side}): $${trade.entryPrice}`,
-        },
-        {
-          time: getNextBusinessDay(trade.date),
-          position: trade.side === 'LONG' ? 'aboveBar' : 'belowBar',
-          color: '#38bdf8',
-          shape: 'circle',
-          text: `Exit: $${trade.exitPrice}`,
-        }
-      ];
-
-      candlestickSeries.setMarkers(markers);
-
-      // 清除舊的水平價格輔助線
-      if (priceLineSL) candlestickSeries.removePriceLine(priceLineSL);
-      if (priceLineTP) candlestickSeries.removePriceLine(priceLineTP);
-
-      // 繪製 Stop-Loss 線
-      if (trade.stopLoss) {
-        priceLineSL = candlestickSeries.createPriceLine({
-          price: parseFloat(trade.stopLoss),
-          color: '#f43f5e',
-          lineWidth: 1,
-          lineStyle: LightweightCharts.LineStyle.Dashed,
-          axisLabelVisible: true,
-          title: 'SL',
-        });
-      }
-
-      // 繪製 Take-Profit 線
-      if (trade.targetPrice) {
-        priceLineTP = candlestickSeries.createPriceLine({
-          price: parseFloat(trade.targetPrice),
-          color: '#10b981',
-          lineWidth: 1,
-          lineStyle: LightweightCharts.LineStyle.Dashed,
-          axisLabelVisible: true,
-          title: 'TP',
-        });
-      }
+      candlestickSeries.setMarkers([
+        { time: trade.date, position: trade.side === 'LONG' ? 'belowBar' : 'aboveBar', color: trade.side === 'LONG' ? '#10b981' : '#f43f5e', shape: trade.side === 'LONG' ? 'arrowUp' : 'arrowDown', text: `買入: $${trade.entryPrice}` },
+        { time: getNextDay(trade.date), position: 'aboveBar', color: '#38bdf8', shape: 'circle', text: `賣出: $${trade.exitPrice}` }
+      ]);
 
       chart.timeScale().fitContent();
     }
 
-    // 3. 本地資料管理 (LocalStorage)
-    function loadTrades() {
-      const saved = localStorage.getItem('tradezella_lite_trades');
-      if (saved) {
-        try {
-          trades = JSON.parse(saved);
-        } catch(e) {
-          trades = DEMO_TRADES;
-        }
-      } else {
-        trades = DEMO_TRADES;
-        saveTrades();
+    function generateKLines(trade) {
+      const result = [];
+      const base = new Date(trade.date);
+      let price = trade.entryPrice;
+
+      for (let i = -10; i <= 10; i++) {
+        const d = new Date(base);
+        d.setDate(d.getDate() + i);
+        if (d.getDay() === 0 || d.getDay() === 6) continue;
+        const dStr = d.toISOString().split('T')[0];
+
+        let open = price;
+        let change = (Math.random() - 0.48) * (open * 0.02);
+        if (dStr === trade.date) { open = trade.entryPrice * 0.99; change = trade.exitPrice - trade.entryPrice; }
+        
+        const close = open + change;
+        const high = Math.max(open, close) + 1;
+        const low = Math.min(open, close) - 1;
+
+        result.push({ time: dStr, open, high, low, close });
+        price = close;
       }
+      return result;
+    }
+
+    function getNextDay(dateStr) {
+      const d = new Date(dateStr);
+      d.setDate(d.getDate() + 1);
+      return d.toISOString().split('T')[0];
+    }
+
+    function loadTrades() {
+      const saved = localStorage.getItem('tradezella_trades');
+      trades = saved ? JSON.parse(saved) : DEMO_TRADES;
       calculateStats();
-      renderJournalTable();
+      renderTable();
+      if (trades.length > 0) selectTrade(trades[0].id);
     }
 
     function saveTrades() {
-      localStorage.setItem('tradezella_lite_trades', JSON.stringify(trades));
+      localStorage.setItem('tradezella_trades', JSON.stringify(trades));
       calculateStats();
-      renderJournalTable();
+      renderTable();
     }
 
-    function resetDemoData() {
-      if (confirm('確定要重置並恢復為預設示範交易資料嗎？')) {
-        trades = DEMO_TRADES;
-        saveTrades();
-        if (trades.length > 0) selectTradeForChart(trades[0].id);
-      }
-    }
-
-    // 4. 計算核心指標 (KPI Engine)
     function calculateStats() {
-      if (trades.length === 0) {
-        document.getElementById('statNetPnL').innerText = '$0.00';
-        document.getElementById('statWinRate').innerText = '0%';
-        document.getElementById('statProfitFactor').innerText = '0.00';
-        document.getElementById('statAvgR').innerText = '0.00R';
-        document.getElementById('statWinCount').innerText = '0 勝 / 0 負';
-        document.getElementById('statTotalTrades').innerText = '共 0 筆交易';
-        return;
-      }
-
-      let netPnL = 0;
-      let wins = 0;
-      let losses = 0;
-      let grossWin = 0;
-      let grossLoss = 0;
-      let totalR = 0;
-      let validRCount = 0;
-
+      if (trades.length === 0) return;
+      let netPnL = 0, wins = 0;
       trades.forEach(t => {
         const mult = t.side === 'LONG' ? 1 : -1;
         const pnl = (t.exitPrice - t.entryPrice) * t.qty * mult;
         netPnL += pnl;
-
-        if (pnl > 0) {
-          wins++;
-          grossWin += pnl;
-        } else if (pnl < 0) {
-          losses++;
-          grossLoss += Math.abs(pnl);
-        }
-
-        // 計算 R-Multiple
-        if (t.stopLoss) {
-          const riskPerShare = Math.abs(t.entryPrice - t.stopLoss);
-          if (riskPerShare > 0) {
-            const r = ((t.exitPrice - t.entryPrice) * mult) / riskPerShare;
-            totalR += r;
-            validRCount++;
-          }
-        }
+        if (pnl > 0) wins++;
       });
 
-      const winRate = ((wins / trades.length) * 100).toFixed(1);
-      const profitFactor = grossLoss === 0 ? grossWin.toFixed(2) : (grossWin / grossLoss).toFixed(2);
-      const avgR = validRCount > 0 ? (totalR / validRCount).toFixed(2) : "0.00";
-
-      const pnlElem = document.getElementById('statNetPnL');
-      pnlElem.innerText = `${netPnL >= 0 ? '+' : ''}$${netPnL.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-      pnlElem.className = `text-2xl font-bold tracking-tight ${netPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-      document.getElementById('statWinRate').innerText = `${winRate}%`;
-      document.getElementById('statWinCount').innerText = `${wins} 勝 / ${losses} 負`;
-      document.getElementById('statProfitFactor').innerText = profitFactor;
-      document.getElementById('statAvgR').innerText = `${avgR}R`;
-      document.getElementById('statTotalTrades').innerText = `共 ${trades.length} 筆交易`;
+      document.getElementById('statNetPnL').innerText = `$${netPnL.toFixed(2)}`;
+      document.getElementById('statWinRate').innerText = `${((wins / trades.length) * 100).toFixed(1)}%`;
     }
 
-    // 5. 渲染歷史交易表格
-    function renderJournalTable() {
+    function renderTable() {
       const tbody = document.getElementById('journalTableBody');
-      const filterTag = document.getElementById('filterTag').value;
       tbody.innerHTML = '';
 
-      const filtered = trades.filter(t => filterTag === 'ALL' || t.tag === filterTag);
-      document.getElementById('recordCount').innerText = `共 ${filtered.length} 筆紀錄`;
-
-      filtered.forEach(t => {
+      trades.forEach(t => {
         const mult = t.side === 'LONG' ? 1 : -1;
         const pnl = (t.exitPrice - t.entryPrice) * t.qty * mult;
-        
-        let rValStr = '-';
-        if (t.stopLoss) {
-          const risk = Math.abs(t.entryPrice - t.stopLoss);
-          if (risk > 0) {
-            const r = ((t.exitPrice - t.entryPrice) * mult) / risk;
-            rValStr = `${r >= 0 ? '+' : ''}${r.toFixed(2)}R`;
-          }
-        }
+        const isSel = t.id === selectedTradeId;
 
-        const isSelected = t.id === selectedTradeId;
         const tr = document.createElement('tr');
-        tr.className = `cursor-pointer transition ${isSelected ? 'bg-emerald-500/10 border-l-2 border-emerald-500' : 'hover:bg-slate-800/40'}`;
-        tr.onclick = () => selectTradeForChart(t.id);
+        tr.className = `cursor-pointer ${isSel ? 'bg-emerald-500/10' : 'hover:bg-slate-800/40'}`;
+        tr.onclick = () => selectTrade(t.id);
 
         tr.innerHTML = `
-          <td class="py-3 px-3 text-slate-400">${t.date}</td>
-          <td class="py-3 px-3 font-bold text-slate-200">${t.symbol}</td>
-          <td class="py-3 px-3">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.side === 'LONG' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}">
-              ${t.side}
-            </span>
-          </td>
-          <td class="py-3 px-3 text-slate-300">$${t.entryPrice} → $${t.exitPrice}</td>
-          <td class="py-3 px-3 font-bold ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
-            ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}
-          </td>
-          <td class="py-3 px-3 font-medium ${rValStr.startsWith('+') ? 'text-emerald-400' : rValStr === '-' ? 'text-slate-500' : 'text-rose-400'}">
-            ${rValStr}
-          </td>
-          <td class="py-3 px-3">
-            <span class="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded border border-slate-700">
-              ${t.tag}
-            </span>
-          </td>
-          <td class="py-3 px-3 text-right">
-            <button onclick="event.stopPropagation(); deleteTrade('${t.id}')" class="text-slate-500 hover:text-rose-400 transition p-1">
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
-            </button>
-          </td>
+          <td class="py-2 px-1 text-slate-400">${t.date}</td>
+          <td class="font-bold text-slate-200">${t.symbol}</td>
+          <td><span class="px-1 py-0.5 rounded text-[10px] ${t.side === 'LONG' ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'}">${t.side}</span></td>
+          <td class="text-slate-300">$${t.entryPrice}→$${t.exitPrice}</td>
+          <td class="font-bold ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</td>
+          <td><span class="bg-slate-800 px-1 py-0.5 rounded text-[10px]">${t.tag}</span></td>
+          <td class="text-right"><button onclick="deleteTrade('${t.id}')" class="text-rose-500">刪除</button></td>
         `;
-
         tbody.appendChild(tr);
       });
-
-      lucide.createIcons();
     }
 
-    // 6. 表單提交事件
+    function selectTrade(id) {
+      selectedTradeId = id;
+      const t = trades.find(item => item.id === id);
+      if (t) updateChartForTrade(t);
+      renderTable();
+    }
+
     function handleFormSubmit(e) {
       e.preventDefault();
-
-      const newTrade = {
-        id: "trade-" + Date.now(),
-        symbol: document.getElementById('symbol').value.toUpperCase().trim(),
+      const newT = {
+        id: "t" + Date.now(),
+        symbol: document.getElementById('symbol').value.toUpperCase(),
         side: document.getElementById('side').value,
         date: document.getElementById('date').value,
         qty: parseFloat(document.getElementById('qty').value),
         entryPrice: parseFloat(document.getElementById('entryPrice').value),
         exitPrice: parseFloat(document.getElementById('exitPrice').value),
-        stopLoss: document.getElementById('stopLoss').value ? parseFloat(document.getElementById('stopLoss').value) : null,
-        targetPrice: document.getElementById('targetPrice').value ? parseFloat(document.getElementById('targetPrice').value) : null,
+        stopLoss: parseFloat(document.getElementById('stopLoss').value) || null,
+        targetPrice: parseFloat(document.getElementById('targetPrice').value) || null,
         tag: document.getElementById('tag').value,
         notes: document.getElementById('notes').value
       };
-
-      trades.unshift(newTrade);
+      trades.unshift(newT);
       saveTrades();
-      selectTradeForChart(newTrade.id);
-
-      // 清空表單
-      document.getElementById('symbol').value = '';
-      document.getElementById('qty').value = '';
-      document.getElementById('entryPrice').value = '';
-      document.getElementById('exitPrice').value = '';
-      document.getElementById('stopLoss').value = '';
-      document.getElementById('targetPrice').value = '';
-      document.getElementById('notes').value = '';
+      selectTrade(newT.id);
     }
 
     function deleteTrade(id) {
-      if (confirm('確定要刪除這筆交易紀錄嗎？')) {
-        trades = trades.filter(t => t.id !== id);
-        saveTrades();
-        if (trades.length > 0) {
-          selectTradeForChart(trades[0].id);
-        }
-      }
+      trades = trades.filter(t => t.id !== id);
+      saveTrades();
+      if (trades.length > 0) selectTrade(trades[0].id);
     }
 
-    function selectTradeForChart(id) {
-      selectedTradeId = id;
-      const trade = trades.find(t => t.id === id);
-      if (trade) {
-        updateChartForTrade(trade);
-      }
-      renderJournalTable();
+    function resetDemoData() {
+      trades = DEMO_TRADES;
+      saveTrades();
+      if (trades.length > 0) selectTrade(trades[0].id);
     }
 
-    // 7. 輔助函數：模擬歷史 K 線數據生成
-    function generateSyntheticKLines(trade) {
-      const result = [];
-      const baseDate = new Date(trade.date);
-      const startPrice = trade.entryPrice * (1 + (Math.random() * 0.04 - 0.02));
-      let currentPrice = startPrice;
-
-      for (let i = -15; i <= 15; i++) {
-        const d = new Date(baseDate);
-        d.setDate(d.getDate() + i);
-        if (d.getDay() === 0 || d.getDay() === 6) continue; // 排除週末
-
-        const dateStr = d.toISOString().split('T')[0];
-        
-        let open = currentPrice;
-        let change = (Math.random() - 0.48) * (open * 0.02);
-
-        // 強制平滑讓 K 線經過進出場價格
-        if (dateStr === trade.date) {
-          open = trade.entryPrice * 0.995;
-          change = Math.abs(trade.exitPrice - trade.entryPrice) * 0.5;
-        }
-
-        const close = open + change;
-        const high = Math.max(open, close) + Math.abs(change) * Math.random();
-        const low = Math.min(open, close) - Math.abs(change) * Math.random();
-
-        result.push({
-          time: dateStr,
-          open: parseFloat(open.toFixed(2)),
-          high: parseFloat(high.toFixed(2)),
-          low: parseFloat(low.toFixed(2)),
-          close: parseFloat(close.toFixed(2))
-        });
-
-        currentPrice = close;
-      }
-
-      return result;
-    }
-
-    function getNextBusinessDay(dateStr) {
-      const d = new Date(dateStr);
-      d.setDate(d.getDate() + 1);
-      if (d.getDay() === 6) d.setDate(d.getDate() + 2);
-      if (d.getDay() === 0) d.setDate(d.getDate() + 1);
-      return d.toISOString().split('T')[0];
-    }
-
-    // JSON 匯出與匯入
     function exportData() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trades, null, 2));
-      const dlAnchor = document.createElement('a');
-      dlAnchor.setAttribute("href", dataStr);
-      dlAnchor.setAttribute("download", `TradeZella_Backup_${new Date().toISOString().split('T')[0]}.json`);
-      document.body.appendChild(dlAnchor);
-      dlAnchor.click();
-      dlAnchor.remove();
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = `trades_backup.json`;
+      a.click();
     }
 
-    function importData(event) {
-      const file = event.target.files[0];
+    function importData(e) {
+      const file = e.target.files[0];
       if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (Array.isArray(imported)) {
-            trades = imported;
-            saveTrades();
-            if (trades.length > 0) selectTradeForChart(trades[0].id);
-            alert('交易紀錄成功匯入！');
-          }
-        } catch(err) {
-          alert('匯入失敗：格式不正確的 JSON 檔案');
-        }
+      const r = new FileReader();
+      r.onload = function(evt) {
+        trades = JSON.parse(evt.target.result);
+        saveTrades();
+        if (trades.length > 0) selectTrade(trades[0].id);
       };
-      reader.readAsText(file);
+      r.readAsText(file);
     }
   </script>
 </body>
