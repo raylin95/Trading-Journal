@@ -34,18 +34,18 @@
         </div>
         <div>
           <h1 class="font-bold text-lg text-white flex items-center gap-2">
-            TradeZella <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Screenshot Edition</span>
+            Raylin's Trading Journal 
           </h1>
-          <p class="text-xs text-slate-400">MES / MNQ 截圖覆盤與損益統計日誌</p>
+          <p class="text-xs text-slate-400">Daily Review</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
         <button onclick="exportData()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition">
-          <i data-lucide="download" class="w-3.5 h-3.5"></i> 匯出 JSON
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> Output JSON
         </button>
         <label class="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 cursor-pointer transition">
-          <i data-lucide="upload" class="w-3.5 h-3.5"></i> 匯入 JSON
+          <i data-lucide="upload" class="w-3.5 h-3.5"></i> Input JSON
           <input type="file" id="importFileInput" onchange="importData(event)" class="hidden" accept=".json">
         </label>
       </div>
@@ -58,19 +58,19 @@
     <!-- Dashboard Cards -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-        <span class="text-xs text-slate-400">總淨損益 (Net PnL)</span>
+        <span class="text-xs text-slate-400">Net PnL</span>
         <div id="statNetPnL" class="text-2xl font-bold mt-1 text-emerald-400">$0.00</div>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-        <span class="text-xs text-slate-400">勝率 (Win Rate)</span>
+        <span class="text-xs text-slate-400">Win Rate</span>
         <div id="statWinRate" class="text-2xl font-bold mt-1 text-sky-400">0%</div>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-        <span class="text-xs text-slate-400">獲利因子 (Profit Factor)</span>
+        <span class="text-xs text-slate-400">Profit Factor</span>
         <div id="statProfitFactor" class="text-2xl font-bold mt-1 text-amber-400">0.00</div>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-        <span class="text-xs text-slate-400">總交易筆數 (Total Trades)</span>
+        <span class="text-xs text-slate-400">Total Trades</span>
         <div id="statTotalTrades" class="text-2xl font-bold mt-1 text-purple-400">0</div>
       </div>
     </div>
@@ -80,17 +80,17 @@
       <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="eye" class="w-5 h-5 text-emerald-400"></i>
-          <h2 class="font-semibold text-slate-200">交易圖片覆盤與檢討視窗</h2>
+          <h2 class="font-semibold text-slate-200">Chart review</h2>
         </div>
         <div id="activeTradeInfo" class="text-xs text-slate-400 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 font-mono">
-          未選擇交易
+          no chose any trades
         </div>
       </div>
       <div class="p-4 flex flex-col items-center justify-center min-h-[350px] bg-slate-950 relative">
         <img id="tradeImagePreview" src="" alt="交易圖片" class="max-h-[500px] w-auto object-contain rounded-lg border border-slate-800 hidden">
         <div id="noImagePlaceholder" class="text-center text-slate-500 p-8 space-y-2">
           <i data-lucide="image-off" class="w-12 h-12 mx-auto stroke-1"></i>
-          <p class="text-sm">請從下方點擊任一筆交易，或新增帶有圖檔的交易紀錄</p>
+          <p class="text-sm">Add photos</p>
         </div>
       </div>
     </div>
@@ -101,19 +101,20 @@
       <!-- Left: Form -->
       <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
         <h2 class="font-semibold border-b border-slate-800 pb-3 flex items-center gap-2">
-          <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i> 新增微型期貨交易
+          <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i> Add Futures Trade
         </h2>
         <form id="tradeForm" onsubmit="handleFormSubmit(event)" class="space-y-3">
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-xs text-slate-400"></label>
               <select id="symbol" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm text-emerald-400 font-bold">
+                 <label class="text-xs text-slate-400">Commodity</label>
                 <option value="MES">MES</option>
                 <option value="MNQ">MNQ</option>
               </select>
             </div>
             <div>
-              <label class="text-xs text-slate-400">多空方向</label>
+              <label class="text-xs text-slate-400">Direction</label>
               <select id="side" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
                 <option value="LONG">LONG</option>
                 <option value="SHORT">SHORT</option>
@@ -123,7 +124,7 @@
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="text-xs text-slate-400">交易日期</label>
+              <label class="text-xs text-slate-400">Date</label>
               <input type="date" id="date" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
             </div>
             <div>
@@ -135,52 +136,52 @@
           <!-- K 線進出場棒數 (1-81) -->
           <div class="grid grid-cols-2 gap-2 bg-slate-950/60 p-2 rounded-lg border border-slate-800">
             <div>
-              <label class="text-xs text-sky-400 font-medium">進場 K 棒 (1-81)</label>
-              <input type="number" id="entryBar" min="1" max="81" placeholder="例如: 5" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm font-mono">
+              <label class="text-xs text-sky-400 font-medium">Entry Time (1-81)</label>
+              <input type="number" id="entryBar" min="1" max="81" placeholder=required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm font-mono">
             </div>
             <div>
-              <label class="text-xs text-amber-400 font-medium">出場 K 棒 (1-81)</label>
-              <input type="number" id="exitBar" min="1" max="81" placeholder="例如: 12" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm font-mono">
+              <label class="text-xs text-amber-400 font-medium">Exit Time (1-81)</label>
+              <input type="number" id="exitBar" min="1" max="81" placeholder= required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm font-mono">
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-xs text-slate-400">Entry</label>
-              <input type="number" step="any" id="entryPrice" placeholder="例如 5800.25" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm font-mono">
+              <input type="number" step="any" id="entryPrice" placeholder= required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm font-mono">
             </div>
             <div>
               <label class="text-xs text-slate-400">Exit</label>
-              <input type="number" step="any" id="exitPrice" placeholder="例如 5815.50" required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm font-mono">
+              <input type="number" step="any" id="exitPrice" placeholder= required class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm font-mono">
             </div>
           </div>
 
           <!-- 圖片上傳區塊 -->
           <div>
-            <label class="text-xs text-slate-400">上傳交易截圖</label>
+            <label class="text-xs text-slate-400">upload charts</label>
             <input type="file" id="imageInput" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer border border-slate-800 rounded-lg p-1 bg-slate-950 mt-1">
           </div>
 
           <div>
-            <label class="text-xs text-slate-400">策略/心理標籤</label>
+            <label class="text-xs text-slate-400">Strategy</label>
             <select id="tag" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm">
               <option value="Breakout">Breakout</option>
               <option value="Pullback">Pullback</option>
               <option value="Reversal">Reversal</option>
               <option value="Revenge">Trading Range fade</option>
               <option value="Revenge">Trend</option>
-              <option value="FOMO">情緒追價 (FOMO)</option>
-              <option value="Revenge">報復下單 (Revenge)</optio>
+              <option value="FOMO">FOMO</option>
+              <option value="Revenge">Revenge</optio>
             </select>
           </div>
 
           <div>
-            <label class="text-xs text-slate-400">檢討筆記</label>
+            <label class="text-xs text-slate-400">Note</label>
             <textarea id="notes" rows="2" placeholder="" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm"></textarea>
           </div>
 
           <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded text-sm font-medium transition flex items-center justify-center gap-2">
-            <i data-lucide="save" class="w-4 h-4"></i> 儲存交易與圖片
+            <i data-lucide="save" class="w-4 h-4"></i> Save
           </button>
         </form>
       </div>
@@ -188,19 +189,19 @@
       <!-- Right: Log -->
       <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
         <h2 class="font-semibold border-b border-slate-800 pb-3 flex items-center gap-2">
-          <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i> 期貨交易檢討
+          <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i> Trading Review
         </h2>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead class="text-xs text-slate-400 border-b border-slate-800">
               <tr>
-                <th class="py-2">日期</th>
-                <th class="py-2">標的</th>
-                <th class="py-2">方向</th>
-                <th class="py-2">K 棒範圍</th>
-                <th class="py-2">總損益 (PnL)</th>
-                <th class="py-2">圖檔</th>
-                <th class="py-2 text-right">操作</th>
+                <th class="py-2">Date</th>
+                <th class="py-2">Commodity</th>
+                <th class="py-2">Direction</th>
+                <th class="py-2">Chart scale</th>
+                <th class="py-2">PnL</th>
+                <th class="py-2">Photo</th>
+                <th class="py-2 text-right">Excute</th>
               </tr>
             </thead>
             <tbody id="journalTableBody" class="divide-y divide-slate-800/60 font-mono text-xs"></tbody>
@@ -245,7 +246,7 @@
       try {
         localStorage.setItem('tradezella_screenshot_trades', JSON.stringify(trades));
       } catch (e) {
-        alert("圖片檔案較大，已超出瀏覽器 LocalStorage 限制。建議將圖片壓縮後再上傳！");
+        alert("Too large pls ZIP");
       }
       calculateStats();
       renderTable();
@@ -297,8 +298,8 @@
           <td><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${t.side === 'LONG' ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'}">${t.side}</span></td>
           <td class="text-slate-300 font-mono">Bar ${t.entryBar} → ${t.exitBar}</td>
           <td class="font-bold font-mono ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</td>
-          <td>${t.image ? '<span class="text-emerald-400 text-xs">有圖檔</span>' : '<span class="text-slate-600 text-xs">無圖</span>'}</td>
-          <td class="text-right"><button onclick="event.stopPropagation(); deleteTrade('${t.id}')" class="text-rose-500 hover:text-rose-400">刪除</button></td>
+          <td>${t.image ? '<span class="text-emerald-400 text-xs">Pic</span>' : '<span class="text-slate-600 text-xs">No Pic</span>'}</td>
+          <td class="text-right"><button onclick="event.stopPropagation(); deleteTrade('${t.id}')" class="text-rose-500 hover:text-rose-400">Delet</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -329,7 +330,7 @@
     function showNoImage() {
       document.getElementById('tradeImagePreview').classList.add('hidden');
       document.getElementById('noImagePlaceholder').classList.remove('hidden');
-      document.getElementById('activeTradeInfo').innerText = "未選擇或該筆無圖檔";
+      document.getElementById('activeTradeInfo').innerText = "Not chose or no Pic";
     }
 
     async function handleFormSubmit(e) {
